@@ -6,7 +6,7 @@ from google.genai import types
 # Configuración estética de la página web
 st.set_page_config(page_title="Tutor IA - Módulo 0", page_icon="🤖", layout="centered")
 
-st.title("🤖 Tutor Virtual de Cátedra")
+st.title("🤖 Tutor Virtual del Módulo 0")
 st.subheader("Módulo 0: Introducción y Gestión de la Cursada")
 st.caption("Departamento de Ciencias Sociales - Universidad Nacional de Luján")
 
