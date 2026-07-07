@@ -66,7 +66,7 @@ if prompt := st.chat_input("¿Qué duda tenés sobre el Módulo 0 o el programa?
 
     # Solicitar la respuesta blindada a Gemini
     with st.chat_message("assistant"):
-        with st.spinner("Consultando el programa de la cátedra..."):
+        with st.spinner("Consultando los materiales del módulo..."):
             try:
                 response = client.models.generate_content(
                     model='gemini-2.5-flash',
