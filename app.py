@@ -3,82 +3,138 @@ import os
 from google import genai
 from google.genai import types
 
-# Configuración estética de la página web
-st.set_page_config(page_title="Tutor IA - Módulo 0", page_icon="🤖", layout="centered")
+# =============================================================
+# CONFIGURACIÓN DEL CURSO — editá esto a medida que avanza
+# =============================================================
+# Subí este número cuando el grupo llega a un nuevo módulo.
+# El bot cargará el contenido de 'general/' + todos los módulos
+# desde 0 hasta MODULO_ACTIVO (inclusive). Los módulos superiores
+# NO se cargan: no existen para el bot, así que no puede adelantarlos.
+MODULO_ACTIVO = 0
 
-st.title("🤖 Tutor Virtual del Módulo 0")
-st.subheader("Módulo 0: Introducción y Gestión de la Cursada")
-st.caption("Departamento de Ciencias Sociales - Universidad Nacional de Luján")
+# Nombre "lindo" de cada módulo (para mensajes del bot y la interfaz)
+NOMBRES_MODULOS = {
+    0: "Módulo 0 — Introducción a la IA Generativa",
+    1: "Módulo 1 — Laboratorio de Producción Textual",
+    2: "Módulo 2 — Laboratorio de Imagen y Audio",
+    3: "Módulo 3 — Laboratorio de Video y Lipsync",
+    4: "Módulo 4 — Laboratorio de Actividades, Evaluaciones y Bots",
+}
+# =============================================================
 
-# 1. Validar de forma segura que la API Key exista
+# Configuración estética de la página
+st.set_page_config(page_title="Tutor IA — Curso de Posgrado", page_icon="🎓", layout="centered")
+
+st.title("🎓 Tutor Virtual del Curso")
+st.subheader("Introducción a la IA Generativa para Docentes Universitarios")
+st.caption("Departamento de Ciencias Sociales — Universidad Nacional de Luján")
+st.info(f"📚 Contenido disponible hasta: **{NOMBRES_MODULOS.get(MODULO_ACTIVO, 'Módulo ' + str(MODULO_ACTIVO))}**")
+
+# 1. Validar que la API Key exista
 if "GEMINI_API_KEY" not in st.secrets:
-    st.error("Falta la clave GEMINI_API_KEY en tu archivo .streamlit/secrets.toml")
+    st.error("Falta la clave GEMINI_API_KEY en los Secrets de Streamlit.")
     st.stop()
 
-# Inicializar el cliente oficial de Gemini
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-# 2. Función para leer de forma automática todos los archivos .md de la carpeta conocimiento
+# 2. Cargar la base de conocimiento SEGÚN el módulo activo
+#    Lee 'conocimiento/general/' siempre + 'conocimiento/modulo_N/' hasta MODULO_ACTIVO.
 @st.cache_data
-def cargar_base_conocimiento():
-    contexto_completo = ""
-    carpeta = "conocimiento"
-    if os.path.exists(carpeta):
-        for archivo in os.listdir(carpeta):
-            if archivo.endswith(".md"):
-                ruta_completa = os.path.join(carpeta, archivo)
-                with open(ruta_completa, "r", encoding="utf-8") as f:
-                    contexto_completo += f"\n\n--- DOCUMENTO DE REFERENCIA: {archivo} ---\n\n" + f.read()
-    return contexto_completo
+def cargar_base_conocimiento(modulo_activo):
+    contexto = ""
+    modulos_cargados = []
 
-contexto_catedra = cargar_base_conocimiento()
+    # Carpetas a leer: general + los módulos habilitados
+    carpetas = ["general"] + [f"modulo_{i}" for i in range(modulo_activo + 1)]
+
+    for nombre_carpeta in carpetas:
+        ruta_carpeta = os.path.join("conocimiento", nombre_carpeta)
+        if os.path.exists(ruta_carpeta):
+            archivos_md = [a for a in sorted(os.listdir(ruta_carpeta)) if a.endswith(".md")]
+            if archivos_md:
+                modulos_cargados.append(nombre_carpeta)
+            for archivo in archivos_md:
+                ruta = os.path.join(ruta_carpeta, archivo)
+                with open(ruta, "r", encoding="utf-8") as f:
+                    contexto += f"\n\n--- DOCUMENTO ({nombre_carpeta}): {archivo} ---\n\n" + f.read()
+
+    return contexto, modulos_cargados
+
+contexto_catedra, modulos_cargados = cargar_base_conocimiento(MODULO_ACTIVO)
 
 if not contexto_catedra:
-    st.warning("⚠️ No se encontraron archivos Markdown (.md) en la carpeta '/conocimiento'. Por favor, cargá el programa de la materia.")
+    st.warning("⚠️ No se encontró contenido en la carpeta 'conocimiento/'. Cargá al menos la carpeta 'general/'.")
 
-# 3. Estructurar el Historial de Chat (Session State) para que tenga memoria
+# 3. Memoria de la conversación (historial en session_state)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Renderizar los mensajes que ya ocurrieron en la pantalla
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Instrucción estricta del sistema (System Prompt) inyectando el contexto de tus textos
+# 4. System prompt: TUTOR de contenidos que sigue el ritmo de la cursada
+nombre_modulo_actual = NOMBRES_MODULOS.get(MODULO_ACTIVO, f"Módulo {MODULO_ACTIVO}")
+
 system_instruction = (
-    "Sos el Asistente Virtual del Módulo 0 del curso de posgrado 'Inteligencia Artificial en la Educación Superior: "
-    "Herramientas básicas para la enseñanza de las Ciencias Sociales' de la UNLu. "
-    "Respondé de forma empática, utilizando el voseo rioplatense (español de Argentina) de manera natural pero sumamente profesional. "
-    "Tu objetivo es guiar a los docentes alumnos basándote EXCLUSIVAMENTE en el contexto institucional provisto abajo.\n\n"
-    "REGLA DE ORO: Si la respuesta a la pregunta del usuario no se encuentra explicitada, sugerida o respaldada en los documentos de referencia, "
-    "no inventes información bajo ningún concepto. Respondé textualmente: 'No dispongo de esa información específica en los registros del Módulo 0. "
-    "Te sugiero consultarlo en el Foro de Avisos de Moodle o directamente con el Profesor Responsable del curso, Lic. Jorge Pablo Sela, o el equipo docente.'\n\n"
-    f"DOCUMENTACIÓN OFICIAL DE CÁTEDRA PARA CONSULTAR:\n{contexto_catedra}"
+    "Sos el Tutor Virtual del curso-taller de posgrado 'Introducción a la IA Generativa para "
+    "Docentes Universitarios' de la Universidad Nacional de Luján (UNLu), Departamento de Ciencias Sociales. "
+    "Tu rol es acompañar el aprendizaje de docentes universitarios que en su mayoría tienen poca o ninguna "
+    "experiencia previa con IA generativa.\n\n"
+
+    "TONO Y ESTILO:\n"
+    "- Usá el voseo rioplatense (español de Argentina) de forma natural, cálida y profesional.\n"
+    "- Explicá con claridad, sin jerga innecesaria. Si usás un término técnico, aclaralo.\n"
+    "- Sé breve y concreto: docentes con poco tiempo. Ofrecé ampliar si hace falta.\n\n"
+
+    "QUÉ RESPONDÉS:\n"
+    "- Respondés sobre los CONTENIDOS del curso (conceptos de IA generativa, prompts, herramientas, "
+    "producción de materiales, etc.) y también sobre cuestiones de cursada (fechas, requisitos, certificación).\n"
+    "- Basás tus respuestas EXCLUSIVAMENTE en la documentación de referencia provista más abajo. "
+    "No inventes datos, herramientas, funciones ni procedimientos que no estén en esos materiales.\n\n"
+
+    "REGLA DE RITMO (muy importante):\n"
+    f"- El curso va actualmente en: {nombre_modulo_actual}.\n"
+    "- Solo tenés cargado el contenido hasta el módulo actual. Si te preguntan por algo que claramente "
+    "corresponde a un módulo posterior y no está en tu documentación, NO lo inventes ni lo adelantes. "
+    "Respondé con calidez que ese tema se va a ver más adelante en el curso, e invitá a enfocarse en lo "
+    "que se está trabajando ahora. Ejemplo de tono: 'Eso lo vamos a ver más adelante en el curso. "
+    "Por ahora estamos trabajando con [tema del módulo actual], ¿te ayudo con eso?'.\n\n"
+
+    "SI NO SABÉS:\n"
+    "- Si la respuesta no está en los materiales y no es un tema de un módulo futuro, respondé: "
+    "'No dispongo de esa información en los materiales del curso. Te sugiero consultarlo en el Foro de "
+    "Avisos de Moodle o con el equipo docente.'\n\n"
+
+    f"DOCUMENTACIÓN DE REFERENCIA:\n{contexto_catedra}"
 )
 
-# 4. El búcle de interacción del Chat
-if prompt := st.chat_input("¿Qué duda tenés sobre el Módulo 0 o el programa?"):
-    # Mostrar la pregunta del docente en la pantalla
+# 5. Bucle de interacción, ahora CON memoria conversacional
+if prompt := st.chat_input("Escribí tu consulta sobre el curso..."):
     with st.chat_message("user"):
         st.markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Solicitar la respuesta blindada a Gemini
+    # Reconstruir el historial en el formato que espera Gemini.
+    # (Gemini usa 'user' y 'model'; mapeamos 'assistant' -> 'model'.)
+    contents = []
+    for m in st.session_state.messages:
+        rol = "user" if m["role"] == "user" else "model"
+        contents.append(types.Content(role=rol, parts=[types.Part(text=m["content"])]))
+
     with st.chat_message("assistant"):
-        with st.spinner("Consultando los materiales del módulo..."):
+        with st.spinner("Consultando los materiales del curso..."):
             try:
                 response = client.models.generate_content(
-                    model='gemini-2.5-flash',
-                    contents=prompt,
+                    model="gemini-2.5-flash",
+                    contents=contents,
                     config=types.GenerateContentConfig(
                         system_instruction=system_instruction,
-                        temperature=0.2, # Temperatura baja para evitar creatividad/alucinación
-                    )
+                        temperature=0.2,
+                    ),
                 )
                 respuesta_bot = response.text
                 st.markdown(respuesta_bot)
-                # Guardar la respuesta en el historial
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_bot})
             except Exception as e:
                 st.error(f"Error de conexión con el modelo: {e}")
