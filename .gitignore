@@ -1,0 +1,6 @@
+# Archivos de caché de Python (se regeneran solos, no van al repo)
+__pycache__/
+*.pyc
+
+# Secretos locales de Streamlit (la API key nunca va al repo)
+.streamlit/secrets.toml
