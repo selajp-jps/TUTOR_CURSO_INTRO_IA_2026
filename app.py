@@ -10,7 +10,7 @@ from google.genai import types
 # El bot cargará el contenido de 'general/' + todos los módulos
 # desde 0 hasta MODULO_ACTIVO (inclusive). Los módulos superiores
 # NO se cargan: no existen para el bot, así que no puede adelantarlos.
-MODULO_ACTIVO = 0
+MODULO_ACTIVO = 2
 
 # Nombre "lindo" de cada módulo (para mensajes del bot y la interfaz)
 NOMBRES_MODULOS = {

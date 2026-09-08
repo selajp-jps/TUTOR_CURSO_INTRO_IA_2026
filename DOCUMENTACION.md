@@ -28,6 +28,14 @@ deriva al equipo. Está embebido dentro del aula de Moodle.
 - **Streamlit Community Cloud** — el servicio gratuito donde vive el bot online.
 - **GitHub** — la copia en la nube del proyecto. Streamlit lee de ahí para publicar.
 
+### Dónde vive cada cosa
+
+- **La carpeta en tu computadora:** `E:\Google Drive\COWORK\APPS DOCENTES\CHATBOT`.
+  Ojo: la carpeta se llama `CHATBOT`, no como el repositorio — buscarla por el nombre del
+  repositorio no da resultado.
+- **El repositorio en GitHub:** `selajp-jps/TUTOR_CURSO_INTRO_IA_2026`, rama `main`.
+- **La app publicada:** `tutor-curso-ia-sociales.streamlit.app`, embebida en el aula.
+
 El circuito completo: editás archivos en tu computadora → los subís a GitHub (commit +
 push) → Streamlit detecta el cambio y republica el bot → el bot se ve dentro de Moodle.
 
@@ -81,12 +89,20 @@ superiores no existen para el bot, así que no puede adelantar temas.
 2. Publicá los cambios (ver 5.c).
 
 ### 5.b — Para abrir un módulo nuevo (rutina completa)
-1. Creá/completá los `.md` del módulo dentro de `conocimiento/modulo_N/` (podés partir
-   del archivo `_PLANTILLA_modulo.md` que está en la carpeta borrador
-   `conocimiento_actualizado/`).
+1. Creá/completá los `.md` del módulo dentro de `conocimiento/modulo_N/`, siguiendo
+   `PLANTILLA_modulo.md` (está en la raíz del repositorio, fuera de `conocimiento/`, así
+   que el bot no lo lee). Son siempre los mismos tres archivos:
+   `01_contenidos.md` (lo conceptual, bloque por bloque), `02_actividades.md` (las
+   consignas y las fechas de entrega) y `03_herramientas_y_faq.md` (con qué se trabaja y
+   qué preguntan). Se llaman igual en todos los módulos a propósito: así se sabe de
+   antemano dónde tocar cuando haya que actualizar algo.
 2. Borrá el `_LEEME.md` de esa carpeta (era solo un recordatorio).
-3. En `app.py`, subí `MODULO_ACTIVO` al número del módulo que abrís.
-4. Publicá los cambios (ver 5.c) y forzá el refresco (ver 5.d).
+3. Revisá si `conocimiento/general/` necesita ajustes: cronograma, fechas de entrega,
+   criterios de aprobación, canales de consulta.
+4. En `app.py`, subí `MODULO_ACTIVO` al número del módulo que abrís.
+5. Anotá el cambio en `CHANGELOG.md`: qué cambiaste, de dónde salió la información y qué
+   decisiones tomaste.
+6. Publicá los cambios (ver 5.c) y forzá el refresco (ver 5.d).
 
 ### 5.c — Publicar los cambios (GitHub Desktop)
 1. Abrí **GitHub Desktop**. Te muestra los archivos cambiados.
@@ -135,6 +151,9 @@ día cambia la URL del bot, hay que actualizar ese `<iframe>` en Moodle.
 - [ ] Si abrí un módulo, ¿subí `MODULO_ACTIVO`?
 - [ ] ¿Hice commit + push en GitHub Desktop (sin el `__pycache__`)?
 - [ ] ¿Rebooteé la app y refresqué con Ctrl+F5 para ver el cambio?
+- [ ] ¿Anoté el cambio en `CHANGELOG.md`?
+- [ ] ¿Las fechas del banco de conocimiento coinciden con las que ven los cursantes en el aula?
+- [ ] ¿No quedó ningún passcode ni contraseña escrito en un archivo de `conocimiento/`?
 
 ---
 
@@ -216,5 +235,5 @@ los `.md` nuevos. Solución operativa: **Reboot app** y/o **Clear cache** (ver 5
 
 ---
 
-*Última actualización de esta documentación: julio 2026. Mantener al día cuando cambien
+*Última actualización de esta documentación: 8 de septiembre de 2026 (ver `CHANGELOG.md`). Mantener al día cuando cambien
 el modelo, la estructura de `conocimiento/`, el hosting o el prompt.*

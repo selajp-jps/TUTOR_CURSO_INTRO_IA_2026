@@ -12,10 +12,17 @@ moverse.
   taller y el Foro de Consultas.
 - **Tutor Virtual**: el asistente disponible las 24 horas para consultas administrativas
   y académicas del curso.
-- **Módulos (0 a 4) y Cierre**: un laboratorio por cada etapa. Se habilitan a medida que
-  el curso avanza.
-- **Baúl de Recursos**: un repositorio con materiales, plantillas y enlaces útiles para
-  todo el taller.
+- **Módulos 0 a 4**: un laboratorio por cada etapa. Se habilitan a medida que el curso
+  avanza. El mapa del aula anuncia además una etapa de **Cierre** dedicada al Trabajo
+  Final Integrador, que se desarrolla a partir del Encuentro 4 (30/09) y se presenta en
+  el Encuentro 5 (07/10).
+- **Baúl de Recursos**: la última sección del aula, un repositorio de material
+  complementario para todo el taller (no se entrega ni se evalúa). Hoy contiene la
+  conferencia en video y el artículo de Paula Carlino sobre leer y escribir en la
+  universidad; las instrucciones para bajar MarkText, un editor de Markdown gratuito, y
+  la alternativa en el navegador StackEdit; y todos los materiales del video del Bloque 5
+  del Módulo 1 —el artículo de partida, los dos prompts usados, el archivo Markdown
+  resultante y la presentación terminada—, para usar de molde.
 
 ## Primera actividad obligatoria: Foro de Presentación
 
